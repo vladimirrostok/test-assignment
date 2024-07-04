@@ -61,6 +61,6 @@ func PrintRules(count int) {
 	fmt.Printf("You have to guess the word and you have %v attempts. \n", count)
 	fmt.Printf("Any letters that are in the right position" +
 		"are highlighted in green while letters that are in the word but not in the" +
-		"correct position will get a yellow outline \n\n")
+		"correct position will get a yellow outline. \n\n")
 	fmt.Println("All words are 5 letter long, you can enter any word.")
 }

@@ -4,6 +4,8 @@ in Go.
 
 This repository contains the ["Programming Skill Assessment" definition file](wordletest_go_v1.odt) and the [Go project code itself](/src/).
 
+Go to the `src/cmd` directory and execute `go run main.go` from there.
+
 ## Tech Stack
 1) Golang 1.22.4
 
