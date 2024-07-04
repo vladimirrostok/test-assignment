@@ -84,10 +84,12 @@ func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
 	var letterIndx int
 	for letterIndx = 0; letterIndx < len(msg); letterIndx++ {
+		alreadyPrinted := false
 
 		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
 		if msg[letterIndx] == secretWord[letterIndx] {
 			color1.Print(string(msg[letterIndx]))
+			alreadyPrinted = true
 		} else {
 			// Iterate through all leftover word and user's input letters to find YELLOW matches.
 			var guessIndx int
@@ -98,8 +100,12 @@ func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
 				} else if msg[letterIndx] == secretWord[guessIndx] {
 					// e.g., EarTh and EvenT both share E and T, the first E is one-to-one match and is GREEN match, T is YELLOW match.
 					color2.Print(string(secretWord[guessIndx]))
+					alreadyPrinted = true
 				}
 			}
+		}
+		if !alreadyPrinted {
+			fmt.Print(string(msg[letterIndx]))
 		}
 
 	}
