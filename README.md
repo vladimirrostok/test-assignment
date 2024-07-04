@@ -16,6 +16,8 @@ This repository contains the ["Programming Skill Assessment" definition file](wo
 ## [CMD pattern](https://github.com/golang-standards/project-layout/blob/master/cmd/README.md)
 CMD pattern - a file convention in Go, helps to manage multiple main.go entry-points in the future and reuse the code, this also helps to keep the root directory clean [e.g., Kubernetes uses this pattern a lot](https://github.com/kubernetes/kubernetes/tree/master/cmd). 
 
+## DDD - Domain Driven Design
+Domain Driven Design was the key idea behind this codebase. Altough the task is tiny, it carries few domain errors related to system data format (only unicode characters allowed, consistant data input length) and a model file with little type-related validation functions.
 
 
 
