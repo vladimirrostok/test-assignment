@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 	domain_errors "test-assignment/domain/errors"
@@ -14,12 +13,14 @@ import (
 	"github.com/fatih/color"
 )
 
-func RunGameLoop(count, maxLength int, errChan chan error) {
+func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	green := color.New(color.FgGreen)
+	yellow := color.New(color.FgYellow)
 
 	// Print game  rules.
 	PrintRules(count)
 
+	// Initialize Reader once and re-use it in the loop.
 	reader := bufio.NewReader(os.Stdin)
 
 	var attempt int
@@ -33,26 +34,57 @@ func RunGameLoop(count, maxLength int, errChan chan error) {
 			continue
 		}
 
-		msg = strings.TrimSpace(msg) // Remove any surrounding whitespace including the newline.
+		// Remove any surrounding whitespaces including the newline.
+		// Normalize the word by bringing it to uppercase.
+		msg = strings.ToUpper(strings.TrimSpace(msg))
 
+		// Verify the user's input content.
 		err = word.IsValidUnicode(msg)
 		if errors.Is(err, domain_errors.InvalidWordData{}) {
+			attempt-- // If there was an input error, rollback the attempt count.
 			fmt.Println(err)
 			errChan <- err
 			continue
 		}
 
+		// Verify the user's input length.
 		err = word.IsValidLength(msg, maxLength)
 		if errors.Is(err, domain_errors.InvalidWordLength{}) {
+			attempt-- // If there was an input error, rollback the attempt count.
 			fmt.Println(err)
 			errChan <- err
 			continue
 		}
 
-		green.Println("Word is fine, here we process it")
+		if secretWord == msg {
+			fmt.Println("You have won!!!")
+			errChan <- nil
+		} else {
+
+			// Iterate through the secret word and user's input at same index to find GREEN matches.
+			var letterIndx int
+			for letterIndx = 0; letterIndx < len(secretWord); letterIndx++ {
+				// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
+				if secretWord[letterIndx] == msg[letterIndx] {
+					green.Println("GREEN match" + " " + string(secretWord[letterIndx]) + " : " + string(msg[letterIndx]))
+				}
+
+				// Iterate through all leftover word and user's input letters to find YELLOW matches.
+				var guessIndx int
+				for guessIndx = 0; guessIndx < len(msg); guessIndx++ {
+					if secretWord[letterIndx] == msg[letterIndx] {
+						// It's the GREEN match scenario from above, skip this one.
+						continue
+					} else if secretWord[letterIndx] == msg[guessIndx] {
+						// e.g., EarTh and EvenT both share E and T, the first E is one-to-one match and is GREEN match, T is YELLOW match.
+						yellow.Println("YELLOW match" + " " + string(secretWord[letterIndx]) + " : " + string(msg[guessIndx]))
+					}
+				}
+			}
+		}
 	}
 
-	log.Println("Game end!")
+	fmt.Println("Game end!")
 	errChan <- nil
 }
 
