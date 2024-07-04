@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -13,14 +14,18 @@ import (
 	"github.com/fatih/color"
 )
 
-// Example words are: water, otter, hound, pizza, eagle, fruit, paper.
 const wordGuesses = 5
 const wordLength = 5
 
-// Available words to guess.
-//var words = [7]string{"water", "otter", "hound", "pizza", "eagle", "fruit", "paper"}
-
 func main() {
+	// Load the words file content
+	words, err := utils.ReadWordConfiguration()
+	if err != nil {
+		fmt.Printf("Fatal error %v \n", err)
+	}
+
+	log.Println(words)
+
 	// Always print a well-formatted message when the game ends.
 	// Combine defer call in a single function to print before Exit.
 	red := color.New(color.FgRed)
