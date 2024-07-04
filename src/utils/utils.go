@@ -26,7 +26,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	// Run the whole game in the loop until there are no more attempts or user wins the game.
 	var attempt int
 	for attempt = 0; attempt < count; attempt++ {
-		fmt.Printf("Guess the word (%d/%d): \n", attempt+1, maxLength)
+		fmt.Printf("\nGuess the word (%d/%d): \n", attempt+1, maxLength)
 
 		// Read the user input.
 		msg, err := reader.ReadString('\n')
@@ -81,25 +81,26 @@ func PrintRules(count int) {
 
 // Game "guess the word" logic processor.
 func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
-
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
 	var letterIndx int
-	for letterIndx = 0; letterIndx < len(secretWord); letterIndx++ {
-		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
-		if secretWord[letterIndx] == msg[letterIndx] {
-			color1.Println("GREEN match" + " " + string(secretWord[letterIndx]) + " : " + string(msg[letterIndx]))
-		}
+	for letterIndx = 0; letterIndx < len(msg); letterIndx++ {
 
-		// Iterate through all leftover word and user's input letters to find YELLOW matches.
-		var guessIndx int
-		for guessIndx = 0; guessIndx < len(msg); guessIndx++ {
-			if secretWord[letterIndx] == msg[letterIndx] {
-				// It's the GREEN match scenario from above, skip this one.
-				continue
-			} else if secretWord[letterIndx] == msg[guessIndx] {
-				// e.g., EarTh and EvenT both share E and T, the first E is one-to-one match and is GREEN match, T is YELLOW match.
-				color2.Println("YELLOW match" + " " + string(secretWord[letterIndx]) + " : " + string(msg[guessIndx]))
+		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
+		if msg[letterIndx] == secretWord[letterIndx] {
+			color1.Print(string(msg[letterIndx]))
+		} else {
+			// Iterate through all leftover word and user's input letters to find YELLOW matches.
+			var guessIndx int
+			for guessIndx = 0; guessIndx < len(secretWord); guessIndx++ {
+				if msg[letterIndx] == secretWord[letterIndx] {
+					// It's the GREEN match scenario from above, skip this one.
+					continue
+				} else if msg[letterIndx] == secretWord[guessIndx] {
+					// e.g., EarTh and EvenT both share E and T, the first E is one-to-one match and is GREEN match, T is YELLOW match.
+					color2.Print(string(secretWord[guessIndx]))
+				}
 			}
 		}
+
 	}
 }
