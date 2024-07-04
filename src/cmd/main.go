@@ -3,13 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	domain_errors "test-assignment/domain/errors"
 	"test-assignment/utils"
+	"time"
 
 	"github.com/fatih/color"
 )
@@ -24,7 +26,14 @@ func main() {
 		fmt.Printf("Fatal error %v \n", err)
 	}
 
-	log.Println(words)
+	// Create a new random number generator with a custom seed (e.g., current time)
+	rndSource := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(rndSource)
+	randIndx := rng.Intn(len(words))
+	var randomWord = words[randIndx]
+	randomWord = strings.ToUpper(randomWord) // Normalize the word which came from txt file, always turn it to uppercase.
+	fmt.Println(words)
+	fmt.Println("Randomly selected slice value : ", randomWord)
 
 	// Always print a well-formatted message when the game ends.
 	// Combine defer call in a single function to print before Exit.
@@ -40,7 +49,7 @@ func main() {
 
 	go func() {
 		// Start the game loop, re-use the initialized reader.
-		utils.RunGameLoop(wordGuesses, wordLength, errorsChan)
+		utils.RunGameLoop(randomWord, wordGuesses, wordLength, errorsChan)
 	}()
 
 	// Provide channel for OS process termination signals.
