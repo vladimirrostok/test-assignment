@@ -37,8 +37,8 @@ func main() {
 	randomWord = strings.ToUpper(randomWord) // Normalize the word which came from txt file, always turn it to uppercase.
 
 	// Uncomment to verify the data.
-	// fmt.Println(words)
-	// fmt.Println("Randomly selected slice value : ", randomWord)
+	fmt.Println(words)
+	fmt.Println("Randomly selected slice value : ", randomWord)
 
 	// Always print a well-formatted message when the game ends.
 	// Combine defer call in a single function to print before Exit.
