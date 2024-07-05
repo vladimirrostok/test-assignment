@@ -1,12 +1,15 @@
 # Summary
-It's a brief assessment, that's a command-line version of the web game Wordle       
-in Go.
+It's a brief assessment, that's a command-line version of the web game Wordle in Go.
 
 This repository contains the ["Programming Skill Assessment" definition file](wordletest_go_v1.odt) and the [Go project code itself](/src/).
 
-Go to the `/src/cmd` directory and execute `go run main.go` .
+# Running
+Go to the `/src/cmd` directory and execute `go run main.go` 
 
-To run the `/src/domain/model` tests and the `/src/utils/` jump to `/src` directory an execute `go test ./...` . 
+To run the `/src/domain/model` tests and the `/src/utils` jump to `/src` directory an execute `go test ./...`
+
+
+![alt text](assets/image.png)
 
 ## Tech Stack
 1) Golang 1.22.4
@@ -25,5 +28,4 @@ Domain Driven Design was the key idea behind thisc codebase. Altough the task is
 
 ## [Table Driven Tests](https://go.dev/wiki/TableDrivenTests)
 Table Driven Tests is a way to write cleaner tests, this reduces the amount of repeated code in the tests and boosts code readability. 
-
 

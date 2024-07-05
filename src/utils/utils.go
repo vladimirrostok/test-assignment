@@ -68,6 +68,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 
 		// Check if guessed word matches the secret word.
 		if secretWord == msg {
+			color1.Println(msg)
 			fmt.Println("You win!!!")
 			errChan <- nil // Use existing channel to notify the main process.
 			return         // Break the game loop from game itself and end there.
