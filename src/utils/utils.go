@@ -31,7 +31,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 		// Read the user input.
 		msg, err := reader.ReadString('\n')
 		if err != nil {
-			errChan <- err // It's up to main process if game should continue when the when input is corrupted.
+			errChan <- err // It's up to main process to decide whether game should continue when the when input is corrupted.
 		}
 
 		// Remove any surrounding whitespaces including the newline.
@@ -41,9 +41,10 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 		// Verify the user's input data.
 		err = word.IsValidUnicode(msg)
 		if errors.Is(err, domain_errors.InvalidWordData{}) {
-			attempt--      // If there was an input error, rollback the attempt count.
-			errChan <- err // Send the game event to main process as an alternative (async) approach.
-			continue       // Start new round.
+			attempt--        // If there was an input error, rollback the attempt count.
+			fmt.Println(err) // Process game event in the real time.
+			errChan <- err   // Send the game event to main process as an alternative (async) approach.
+			continue         // Start new round.
 		}
 
 		// Verify the user's input length.
@@ -55,17 +56,18 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 			continue         // Start new round.
 		}
 
-		// Check if guessed word matches the secret word fully.
+		// Check if guessed word matches the secret word.
 		if secretWord == msg {
-			fmt.Println("You have won!!!")
-			errChan <- nil // Use existing channel to command the main process to end the game.
+			fmt.Println("You win!!!")
+			errChan <- nil // Use existing channel to notify the main process.
+			return         // Break the game loop from game itself and end there.
 		} else {
 			iterateWordMatches(secretWord, msg, green, yellow) // Run the complete guess-logic for this round.
 		}
 	}
 
 	// End of the loop, if there are no attempts then show "Game end" and signal to end the game.
-	fmt.Println("Game end!")
+	fmt.Println("\nGame over		!")
 	errChan <- nil
 }
 
@@ -81,32 +83,61 @@ func PrintRules(count int) {
 
 // Game "guess the word" logic processor.
 func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
-	// Iterate through the secret word and user's input at same index to find GREEN matches.
-	var letterIndx int
-	for letterIndx = 0; letterIndx < len(msg); letterIndx++ {
-		alreadyPrinted := false
+	// Hence we must know GREEN occurencies before we can accurately locate YELLOW instances,
+	// we must process the entire string at least once, good example is water and otter = otTER.
+	// We encode this in a few steps, 0 is "GREEN" and "1" is "YELLOW" instance.
+	// We store entire calcultion progress in the variable and properly decode it in the end.
+	var encodedResult = msg
 
+	// Iterate through the secret word and user's input at same index to find GREEN matches.
+	// We take full user input and iterate over the full secret word once finding [0]=[0] like matches.
+	var i int
+	for i = 0; i < len(msg); i++ {
 		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
-		if msg[letterIndx] == secretWord[letterIndx] {
-			color1.Print(string(msg[letterIndx]))
-			alreadyPrinted = true
-		} else {
-			// Iterate through all leftover word and user's input letters to find YELLOW matches.
-			var guessIndx int
-			for guessIndx = 0; guessIndx < len(secretWord); guessIndx++ {
-				if msg[letterIndx] == secretWord[letterIndx] {
-					// It's the GREEN match scenario from above, skip this one.
-					continue
-				} else if msg[letterIndx] == secretWord[guessIndx] {
-					// e.g., EarTh and EvenT both share E and T, the first E is one-to-one match and is GREEN match, T is YELLOW match.
-					color2.Print(string(secretWord[guessIndx]))
-					alreadyPrinted = true
+		if msg[i] == secretWord[i] {
+			encodedResult = replaceAtIndex(encodedResult, "0", i)
+		}
+	}
+
+	// Iterate through the secret word and user's input to find YELLOW matches, we encode YELLOW into "1".
+	for i := 0; i < len(msg); i++ {
+		// Game rule says when guessed word has more instances of YELLOW letters than the secret word, then we don't make excessive yellow-s.
+		// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
+		letterCountInSecretWord := strings.Count(secretWord, string(msg[i]))
+		letterCountInUserInput := strings.Count(msg, string(msg[i]))
+
+		// In case we have some instances left not covered with GREEN matches, looking for YELLOW instances.
+		if letterCountInUserInput <= letterCountInSecretWord {
+			var s int
+			// Iterate every letter of word and input to find leftover matches.
+			for s = 0; s < len(secretWord); s++ {
+				// Dropping the already encoded values, 0 means GREEN match, GREEN matches are already pre-calculated and skipped.
+				if encodedResult[i] == 0 {
+					break
+				} else if encodedResult[i] == secretWord[s] {
+					// Encoding the new matches into the previous calculation result.
+					encodedResult = replaceAtIndex(encodedResult, "1", i)
 				}
 			}
 		}
-		if !alreadyPrinted {
-			fmt.Print(string(msg[letterIndx]))
-		}
-
 	}
+
+	// Visualize the result, decoding and printing the result.
+	for i := 0; i < len(encodedResult); i++ {
+		var encodedResult = string(encodedResult[i])
+		var originalLetter = string(msg[i])
+
+		// Paint values based on the encoding.
+		if encodedResult == "0" {
+			color1.Print(originalLetter)
+		} else if encodedResult == "1" {
+			color2.Print(originalLetter)
+		} else {
+			fmt.Print(originalLetter)
+		}
+	}
+}
+
+func replaceAtIndex(input, replacement string, index int) string {
+	return input[:index] + string(replacement) + input[index+1:]
 }
