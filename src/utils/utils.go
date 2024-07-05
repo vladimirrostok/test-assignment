@@ -12,11 +12,21 @@ import (
 	"github.com/fatih/color"
 )
 
-func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
-	// Initialize the colors and re-use them in the loop.
-	green := color.New(color.FgGreen)
-	yellow := color.New(color.FgYellow)
+// Initialize the colors and re-use them in the loop.
+var color1 = color.New(color.FgGreen)
+var color2 = color.New(color.FgYellow)
 
+// Print all the game rules.
+func PrintRules(count int) {
+	fmt.Printf("Hello, this is a mini version of the web game Wordle in Go. \n\n")
+	fmt.Printf("You have to guess the word and you have %v attempts. \n", count)
+	fmt.Printf("Any letters that are in the right position" +
+		"are highlighted in green while letters that are in the word but not in the" +
+		"correct position will get a yellow outline. \n\n")
+	fmt.Println("All words are 5 letter long, you can enter any word.")
+}
+
+func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	// Print all the game rules.
 	PrintRules(count)
 
@@ -62,27 +72,17 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 			errChan <- nil // Use existing channel to notify the main process.
 			return         // Break the game loop from game itself and end there.
 		} else {
-			iterateWordMatches(secretWord, msg, green, yellow) // Run the complete guess-logic for this round.
+			iterateWordMatches(secretWord, msg) // Run the complete guess-logic for this round.
 		}
 	}
 
 	// End of the loop, if there are no attempts then show "Game end" and signal to end the game.
-	fmt.Println("\nGame over		!")
+	fmt.Println("\nGame over!")
 	errChan <- nil
 }
 
-// Print all the game rules.
-func PrintRules(count int) {
-	fmt.Printf("Hello, this is a mini version of the web game Wordle in Go. \n\n")
-	fmt.Printf("You have to guess the word and you have %v attempts. \n", count)
-	fmt.Printf("Any letters that are in the right position" +
-		"are highlighted in green while letters that are in the word but not in the" +
-		"correct position will get a yellow outline. \n\n")
-	fmt.Println("All words are 5 letter long, you can enter any word.")
-}
-
 // Game "guess the word" logic processor.
-func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
+func iterateWordMatches(secretWord, msg string) string {
 	// Hence we must know GREEN occurencies before we can accurately locate YELLOW instances,
 	// we must process the entire string at least once, good example is water and otter = otTER.
 	// We encode this in a few steps, 0 is "GREEN" and "1" is "YELLOW" instance.
@@ -122,6 +122,12 @@ func iterateWordMatches(secretWord, msg string, color1, color2 *color.Color) {
 		}
 	}
 
+	printResult(encodedResult, msg)
+
+	return encodedResult
+}
+
+func printResult(encodedResult, msg string) {
 	// Visualize the result, decoding and printing the result.
 	for i := 0; i < len(encodedResult); i++ {
 		var encodedResult = string(encodedResult[i])
