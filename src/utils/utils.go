@@ -86,47 +86,63 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error, wg
 
 // Game "guess the word" logic processor.
 func iterateWordMatches(secretWord, input string) string {
-	// Hence we must know GREEN occurencies before we can accurately locate YELLOW instances,
-	// we must process the entire string at least once, good example is water and otter = otTER.
-	// We encode this in a few steps, 0 is "GREEN" and "1" is "YELLOW" instance.
-	// We store entire calculation progress in the variable and properly decode it in the end.
-	// By encoding input and secret we can skip processed matches to avoid overlaps easier.
+	// Hence we must know GREEN occurencies before we can accurately locate <yellow> instances,
+	// we must process the entire word once, good tricky example case for that is: water and otter = o<t>TER.
+	// We encode results as: 0 is "GREEN" and "1" is <yellow> instance, and decode it while printing it.
 	var encodedInput = input
-	var encodedSecret = secretWord
+
+	// For complex scenarios we need to track how much we used <yellow> letters before painting new ones.
+	// Rule says - when guessed word has more instances of <yellow> letter than the secret word, then we don't make excessive <yellow>-s.
+	// Example: "water" and "otter" should highlight only otTER, TER as GREEN and first t is ignored, not making the first "t" <yellow>.
+	// Another example: otter and toott = <to>o<t>t (2 <yellow> T and 1 <yellow> O, no GREEN here).
+	// First we calculate the easy GREEN matches, take this number and calculate the leftover <yellow> amount.
+	type letterUsage struct {
+		matchesTotal int
+		matchesUsed  int
+	}
+	yellowsUsed := make(map[string]*letterUsage)
 
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
-	// We take full user input and iterate over the full secret word once finding [0]=[0] like matches.
+	// We take full user input and iterate over the full secret word once finding [0]=[0] like GREEN matches.
 	var i int
 	for i = 0; i < len(input); i++ {
+		letter := string(input[i])
+		totalLettersInSecret := strings.Count(secretWord, string(input[i])) // Take total amount of letter instances in word.
+
+		// We fill the map with the secret word's letter as key and amount as value to use it after.
+		// We need to do it only once, so we check if we added something here before, if exists just skip.
+		if yellowsUsed[letter] == nil {
+			yellowsUsed[letter] = &letterUsage{matchesTotal: totalLettersInSecret, matchesUsed: 0}
+		}
+
 		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
+		// We are encoding the color 0|1 right into the string, it's easy to iterate over it to paint proper positions,
+		// so we just use this to carry the correct colored indexes and colors of these matched letters.
 		if input[i] == secretWord[i] {
 			encodedInput = replaceAtIndex(encodedInput, "0", i)
-			encodedSecret = replaceAtIndex(encodedSecret, "0", i)
+			yellowsUsed[letter].matchesUsed++
 		}
 	}
 
-	// Let's see how much matches we have in the processed text and processed word.
-	var yellowsFound = 0
-
-	// Iterate through the secret word and user's input to find YELLOW matches, we encode YELLOW into "1".
+	// Iterate through the secret word and user's input to find <yellow> matches, we encode <yellow> into "1".
+	// Game rule says when guessed word has more instances of <yellow> letters than the secret word, then we don't make excessive <yellow>.
+	// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
+	// GREEN matches are already encoded and we just skip these cycles.
 	for i := 0; i < len(input); i++ {
-		// Game rule says when guessed word has more instances of YELLOW letters than the secret word, then we don't make excessive yellow-s.
-		// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
-		// GREEN matches are already removed from process in the encoded strings.
-		leftoverLettersInEncodedSecret := strings.Count(encodedSecret, string(input[i]))
+		letter := string(input[i])
 
-		// In case we have some YELLOW matches we look for it.
-		if yellowsFound <= leftoverLettersInEncodedSecret {
-			var s int
-			// Iterate every letter of word and input to find leftover matches.
-			for s = 0; s < len(secretWord); s++ {
-				// Dropping the already encoded values, 0 means GREEN match, GREEN matches are already pre-calculated and skipped.
-				if encodedInput[i] == 0 {
-					break
-				} else if encodedInput[i] == secretWord[s] {
-					// Encoding the new matches into the previous calculation result.
+		// In case we have some <yellow> matches left we look for it, and checking the amount too.
+		// Iterate every letter of word and input to find leftover <yellow> matches, skipping [0]=[0] GREEN from previous step.
+		var s int
+		for s = 0; s < len(secretWord); s++ {
+			// Dropping the already encoded values, 0 means GREEN match, GREEN matches are already pre-calculated and skipped.
+			if encodedInput[i] == 0 {
+				break // Go to next letter, this GREEN is simply skipped.
+			} else if encodedInput[i] == secretWord[s] {
+				// If amount of used yellow matches is less than total amount of possible matches then use this position (from left to right).
+				if yellowsUsed[letter].matchesUsed < yellowsUsed[letter].matchesTotal {
+					yellowsUsed[letter].matchesUsed++
 					encodedInput = replaceAtIndex(encodedInput, "1", i)
-					yellowsFound++
 				}
 			}
 		}
