@@ -90,7 +90,9 @@ func iterateWordMatches(secretWord, input string) string {
 	// we must process the entire string at least once, good example is water and otter = otTER.
 	// We encode this in a few steps, 0 is "GREEN" and "1" is "YELLOW" instance.
 	// We store entire calculation progress in the variable and properly decode it in the end.
+	// By encoding input and secret we can skip processed matches to avoid overlaps easier.
 	var encodedInput = input
+	var encodedSecret = secretWord
 
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
 	// We take full user input and iterate over the full secret word once finding [0]=[0] like matches.
@@ -99,18 +101,22 @@ func iterateWordMatches(secretWord, input string) string {
 		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
 		if input[i] == secretWord[i] {
 			encodedInput = replaceAtIndex(encodedInput, "0", i)
+			encodedSecret = replaceAtIndex(encodedSecret, "0", i)
 		}
 	}
+
+	// Let's see how much matches we have in the processed text and processed word.
+	var yellowsFound = 0
 
 	// Iterate through the secret word and user's input to find YELLOW matches, we encode YELLOW into "1".
 	for i := 0; i < len(input); i++ {
 		// Game rule says when guessed word has more instances of YELLOW letters than the secret word, then we don't make excessive yellow-s.
 		// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
-		letterCountInSecretWord := strings.Count(secretWord, string(input[i]))
-		letterCountInUserInput := strings.Count(input, string(input[i]))
+		// GREEN matches are already removed from process in the encoded strings.
+		leftoverLettersInEncodedSecret := strings.Count(encodedSecret, string(input[i]))
 
-		// In case we have some instances left not covered with GREEN matches, looking for YELLOW instances.
-		if letterCountInUserInput <= letterCountInSecretWord {
+		// In case we have some YELLOW matches we look for it.
+		if yellowsFound <= leftoverLettersInEncodedSecret {
 			var s int
 			// Iterate every letter of word and input to find leftover matches.
 			for s = 0; s < len(secretWord); s++ {
@@ -120,6 +126,7 @@ func iterateWordMatches(secretWord, input string) string {
 				} else if encodedInput[i] == secretWord[s] {
 					// Encoding the new matches into the previous calculation result.
 					encodedInput = replaceAtIndex(encodedInput, "1", i)
+					yellowsFound++
 				}
 			}
 		}
