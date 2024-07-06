@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	domain_errors "test-assignment/domain/errors"
 	"test-assignment/domain/word"
 
@@ -27,9 +26,8 @@ func PrintRules(count int) {
 	fmt.Println("All words are 5 letter long, you can enter any word.")
 }
 
-func RunGameLoop(secretWord string, count, maxLength int, errChan chan error, wg *sync.WaitGroup) {
+func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	defer func() {
-		wg.Done()      // Notify the main that the game has ended.
 		close(errChan) // As we know any processing has been finished, we can safely close chan from the sender.
 	}()
 

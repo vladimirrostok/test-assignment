@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"sync"
 	"syscall"
 	"test-assignment/utils"
 	"time"
@@ -55,14 +54,7 @@ func main() {
 		syscall.SIGQUIT, // kill -SIGQUIT XXXX
 	)
 
-	// Listen to the game when it ends.
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	// Start the game asynchronously.
-	go utils.RunGameLoop(randomWord, wordGuesses, wordLength, errChan, &wg)
-
-	// Process the game end.
+	// Process the game and final print.
 	go func() {
 		defer func() {
 			// Always print a well-formatted message when the game ends.
@@ -72,8 +64,9 @@ func main() {
 
 			os.Exit(0)
 		}()
-		// Wait for all workers to complete.
-		wg.Wait()
+
+		// Start the game.
+		utils.RunGameLoop(randomWord, wordGuesses, wordLength, errChan)
 	}()
 
 	// Block until the error or forced shutdown signal kicks in.
