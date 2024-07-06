@@ -42,7 +42,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error, wg
 	// Run the whole game in the loop until there are no more attempts or user wins the game.
 	var attempt int
 	for attempt = 0; attempt < count; attempt++ {
-		fmt.Printf("\nGuess the word (%d/%d): \n", attempt+1, maxLength)
+		fmt.Printf("\nGuess the word (%d/%d): ", attempt+1, maxLength)
 
 		// Read the user input.
 		input, err := reader.ReadString('\n')
