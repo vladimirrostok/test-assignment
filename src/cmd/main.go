@@ -14,10 +14,10 @@ import (
 	"github.com/fatih/color"
 )
 
-const wordGuesses = 5
-const wordLength = 5
-
 func main() {
+	const wordGuesses = 5
+	const wordLength = 5
+
 	// Load the words file content.
 	words, err := utils.ReadWordConfiguration()
 	if err != nil {
