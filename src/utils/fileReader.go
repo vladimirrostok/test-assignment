@@ -13,6 +13,8 @@ func ReadWordConfiguration() ([]string, error) {
 		return nil, err
 	}
 
+	defer file.Close()
+
 	Scanner := bufio.NewScanner(file)
 	Scanner.Split(bufio.ScanWords)
 
