@@ -52,6 +52,7 @@ func main() {
 		syscall.SIGHUP,  // kill -SIGHUP XXXX
 		syscall.SIGINT,  // kill -SIGINT XXXX or Ctrl+c
 		syscall.SIGQUIT, // kill -SIGQUIT XXXX
+		syscall.SIGTERM, // kill -SIGTERM XXXX
 	)
 
 	// Process the game and final print.
@@ -72,14 +73,12 @@ func main() {
 	// Block until the error or forced shutdown signal kicks in.
 	for {
 		select {
-		// If there is unknown error, then let it exit fast.
-		case err := <-errChan:
+		case err := <-errChan: // If there is unknown error, then let it exit fast.
 			log.Printf("Fatal error %v \n", err)
-			os.Exit(0)
-			// If there is a shutdown signal, let game exit on its own.
-		case <-signalChan:
+			os.Exit(0) // Exit the game fast, skip processing any defer-calls.
+		case <-signalChan: // If there is a shutdown signal, let game exit on its own.
 			fmt.Print("Shutting down ...\n")
-			os.Exit(0)
+			return // Exit the loop, there's nothing blocking after it so the app closes.
 		}
 	}
 }
