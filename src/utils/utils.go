@@ -98,13 +98,13 @@ func iterateWordMatches(secretWord, input string) string {
 		matchesTotal int
 		matchesUsed  int
 	}
-	yellowsUsed := make(map[string]*letterUsage)
+	yellowsUsed := make(map[rune]*letterUsage)
 
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
 	// We take full user input and iterate over the full secret word once finding [0]=[0] like GREEN matches.
 	var i int
 	for i = 0; i < len(input); i++ {
-		letter := string(input[i])
+		letter := rune(input[i])
 		totalLettersInSecret := strings.Count(secretWord, string(input[i])) // Take total amount of letter instances in word.
 
 		// We fill the map with the secret word's letter as key and amount as value to use it after.
@@ -127,7 +127,7 @@ func iterateWordMatches(secretWord, input string) string {
 	// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
 	// GREEN matches are already encoded and we just skip these cycles.
 	for i := 0; i < len(input); i++ {
-		letter := string(input[i])
+		letter := rune(input[i])
 
 		// In case we have some <yellow> matches left we look for it, and checking the amount too.
 		// Iterate every letter of word and input to find leftover <yellow> matches, skipping [0]=[0] GREEN from previous step.
