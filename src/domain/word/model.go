@@ -18,7 +18,7 @@ func IsValidUnicode(s string) error {
 
 // Verify the word, only a certain length is allowed.
 func IsValidLength(s string, length int) error {
-	if len(s) != length {
+	if len([]rune(s)) != length {
 		return fmt.Errorf("error: %w", domain_errors.InvalidWordLength{})
 	}
 

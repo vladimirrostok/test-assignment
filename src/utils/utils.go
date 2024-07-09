@@ -79,7 +79,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 			fmt.Println("You win!!!")
 			return // Break the game loop from game itself and end there.
 		} else {
-			iterateWordMatches(secretWord, input) // Run the complete guess-logic for this round.
+			iterateWordMatches([]rune(secretWord), []rune(input)) // Run the complete guess-logic for this round.
 		}
 	}
 
@@ -88,11 +88,14 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 }
 
 // Game "guess the word" logic processor.
-func iterateWordMatches(secretWord, input string) string {
+func iterateWordMatches(secretWord, input []rune) string {
 	// Hence we must know GREEN occurencies before we can accurately locate <yellow> instances,
 	// we must process the entire word once, good tricky example case for that is: water and otter = o<t>TER.
 	// We encode results as: 0 is "GREEN" and "1" is <yellow> instance, and decode it while printing it.
-	var encodedInput = input
+
+	// Hence we create new slice based on existing slice, we don't want to modify original slice, thus we create new slice.
+	var encodedInput = make([]rune, len(input))
+	copy(encodedInput, input)
 
 	// For complex scenarios we need to track how much we used <yellow> letters before painting new ones.
 	// Rule says - when guessed word has more instances of <yellow> letter than the secret word, then we don't make excessive <yellow>-s.
@@ -111,8 +114,8 @@ func iterateWordMatches(secretWord, input string) string {
 	// We take full user input and iterate over the full secret word once finding [0]=[0] like GREEN matches.
 	var i int
 	for i = 0; i < len(input); i++ {
-		letter := rune(input[i])
-		totalLettersInSecret := strings.Count(secretWord, string(input[i])) // Take total amount of letter instances in word.
+		letter := input[i]
+		totalLettersInSecret := strings.Count(string(secretWord), string(letter)) // Take total amount of letter instances in word.
 
 		// We fill the map with the secret word's letter as key and amount as value to use it after.
 		// We need to do it only once, so we check if we added something here before, if exists just skip.
@@ -123,8 +126,8 @@ func iterateWordMatches(secretWord, input string) string {
 		// e.g., Earth and Event both match on first index, the first E is one-to-one match and is GREEN colored.
 		// We are encoding the color 0|1 right into the string, it's easy to iterate over it to paint proper positions,
 		// so we just use this to carry the correct colored indexes and colors of these matched letters.
-		if input[i] == secretWord[i] {
-			encodedInput = replaceAtIndex(encodedInput, "0", i)
+		if letter == secretWord[i] {
+			encodedInput[i] = '0'
 			yellowsUsed[letter].matchesUsed++
 		}
 	}
@@ -134,20 +137,20 @@ func iterateWordMatches(secretWord, input string) string {
 	// In case of water and otter we should highlight only otTER as green and ignore first one, not making the first "t" yellow.
 	// GREEN matches are already encoded and we just skip these cycles.
 	for i := 0; i < len(input); i++ {
-		letter := rune(input[i])
+		letter := input[i]
 
 		// In case we have some <yellow> matches left we look for it, and checking the amount too.
 		// Iterate every letter of word and input to find leftover <yellow> matches, skipping [0]=[0] GREEN from previous step.
 		var s int
 		for s = 0; s < len(secretWord); s++ {
 			// Dropping the already encoded values, 0 means GREEN match, GREEN matches are already pre-calculated and skipped.
-			if encodedInput[i] == 0 {
+			if encodedInput[i] == '0' {
 				break // Go to next letter, this GREEN is simply skipped.
 			} else if encodedInput[i] == secretWord[s] {
 				// If amount of used yellow matches is less than total amount of possible matches then use this position (from left to right).
 				if yellowsUsed[letter].matchesUsed < yellowsUsed[letter].matchesTotal {
 					yellowsUsed[letter].matchesUsed++
-					encodedInput = replaceAtIndex(encodedInput, "1", i)
+					encodedInput[i] = '1'
 				}
 			}
 		}
@@ -155,26 +158,20 @@ func iterateWordMatches(secretWord, input string) string {
 
 	printResult(encodedInput, input) // Print the result for the entered word.
 
-	return encodedInput // Return the results enabling unit tests to use this.
+	return string(encodedInput) // Return the results as string simplyfing unit tests for this.
 }
 
-func printResult(encodedInput, input string) {
+func printResult(encodedInput, input []rune) {
 	// Visualize the result, decoding and printing the result.
 	for i := 0; i < len(encodedInput); i++ {
-		encodedInput := string(encodedInput[i])
-		originalLetter := string(input[i])
 
 		// Paint values based on the encoding.
-		if encodedInput == "0" {
-			green.Print(originalLetter)
-		} else if encodedInput == "1" {
-			yellow.Print(originalLetter)
+		if encodedInput[i] == '0' {
+			green.Print(string(input[i]))
+		} else if encodedInput[i] == '1' {
+			yellow.Print(string(input[i]))
 		} else {
-			fmt.Print(originalLetter)
+			fmt.Print(string(input[i]))
 		}
 	}
-}
-
-func replaceAtIndex(input, replacement string, index int) string {
-	return input[:index] + string(replacement) + input[index+1:]
 }

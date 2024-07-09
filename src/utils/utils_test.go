@@ -28,7 +28,7 @@ var wordDataValidationTests = []wordIterationTest{
 
 func TestWordIteration(t *testing.T) {
 	for _, test := range wordDataValidationTests {
-		if output := iterateWordMatches(test.secretWord, test.input); output != test.expected {
+		if output := iterateWordMatches([]rune(test.secretWord), []rune(test.input)); output != test.expected {
 			t.Errorf("Output %q not equal to expected %q", output, test.expected)
 		}
 	}
@@ -37,8 +37,8 @@ func TestWordIteration(t *testing.T) {
 func TestWordDecodedPrint(t *testing.T) {
 	// Quick printout to the console to see the colorful output.
 	// Not automated solution, good utility to verify hardcoded cases manually.
-	printResult("OT000", "OTTER")
+	printResult([]rune("OT000"), []rune("OTTER"))
 	fmt.Println("")
-	printResult("0011A", "HONDA")
+	printResult([]rune("0011A"), []rune("HONDA"))
 	fmt.Println("")
 }
