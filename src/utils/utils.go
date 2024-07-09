@@ -154,8 +154,8 @@ func iterateWordMatches(secretWord, input string) string {
 func printResult(encodedInput, input string) {
 	// Visualize the result, decoding and printing the result.
 	for i := 0; i < len(encodedInput); i++ {
-		var encodedInput = string(encodedInput[i])
-		var originalLetter = string(input[i])
+		encodedInput := string(encodedInput[i])
+		originalLetter := string(input[i])
 
 		// Paint values based on the encoding.
 		if encodedInput == "0" {
