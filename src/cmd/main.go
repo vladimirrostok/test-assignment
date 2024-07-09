@@ -55,7 +55,7 @@ func main() {
 		syscall.SIGTERM, // kill -SIGTERM XXXX
 	)
 
-	// Process the game and final print.
+	// Run the game and listen to channels asynchronously unblocking the main thread.
 	go func() {
 		defer func() {
 			// Always print a well-formatted message when the game ends.
@@ -70,15 +70,14 @@ func main() {
 		utils.RunGameLoop(randomWord, wordGuesses, wordLength, errChan)
 	}()
 
-	// Block until the error or forced shutdown signal kicks in.
-	for {
-		select {
-		case err := <-errChan: // If there is unknown error, then let it exit fast.
-			log.Printf("Fatal error %v \n", err)
-			os.Exit(0) // Exit the game fast, skip processing any defer-calls.
-		case <-signalChan: // If there is a shutdown signal, let game exit on its own.
-			fmt.Print("Shutting down ...\n")
-			return // Exit the loop, there's nothing blocking after it so the app closes.
-		}
+	// A select blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
+	// Select statement without a "default" case is a blocking operation, so we don't really need "for" loop here.
+	select {
+	case err := <-errChan: // If there is unknown error, then let it exit fast.
+		log.Printf("Fatal error %v \n", err)
+		os.Exit(0) // Exit the game fast, skip processing any defer-calls.
+	case <-signalChan: // If there is a shutdown signal, let game exit on its own.
+		fmt.Print("Shutting down ...\n")
+		return // Exit the loop, there's nothing blocking after it so the app closes.
 	}
 }
