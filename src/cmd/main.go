@@ -32,9 +32,8 @@ func main() {
 	rng := rand.New(rndSource)
 
 	// Pick any random word for the game session.
-	randIndx := rng.Intn(len(words))
-	var randomWord = words[randIndx]
-	randomWord = strings.ToUpper(randomWord) // Normalize the word which came from txt file, always turn it to uppercase.
+	randIndx := rng.Intn(len(words))               // We take the slice length and take any index from existing words.
+	randomWord := strings.ToUpper(words[randIndx]) // Normalize the word which came from txt file, always turn it to uppercase.
 
 	// Uncomment to verify the data.
 	fmt.Println(words)
