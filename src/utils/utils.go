@@ -16,6 +16,9 @@ import (
 var green = color.New(color.FgGreen)
 var yellow = color.New(color.FgYellow)
 
+// We use this variable at two places, move outside of func to simplify the tests input.
+var wordMaxLength int
+
 // Print all the game rules.
 func PrintRules(count int) {
 	fmt.Printf("Hello, this is a mini version of the web game Wordle in Go. \n\n")
@@ -30,6 +33,8 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	defer func() {
 		close(errChan) // As we know any processing has been finished, we can safely close chan from the sender.
 	}()
+
+	wordMaxLength = maxLength
 
 	// Print all the game rules.
 	PrintRules(count)
@@ -98,7 +103,9 @@ func iterateWordMatches(secretWord, input string) string {
 		matchesTotal int
 		matchesUsed  int
 	}
-	yellowsUsed := make(map[rune]*letterUsage)
+
+	// We create map of fixed size as we already know the max possible amount of unique letters in the input.
+	yellowsUsed := make(map[rune]*letterUsage, wordMaxLength)
 
 	// Iterate through the secret word and user's input at same index to find GREEN matches.
 	// We take full user input and iterate over the full secret word once finding [0]=[0] like GREEN matches.
