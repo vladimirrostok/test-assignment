@@ -13,8 +13,8 @@ import (
 )
 
 // Initialize the colors and re-use them in the loop.
-var green = color.New(color.FgGreen)
-var yellow = color.New(color.FgYellow)
+var greenBackground = color.New(color.BgGreen)
+var yellowBackground = color.New(color.BgYellow)
 
 // We use this variable at two places, move outside of func to simplify the tests input.
 var wordMaxLength int
@@ -75,7 +75,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 
 		// Check if guessed word matches the secret word.
 		if secretWord == input {
-			green.Println(input)
+			greenBackground.Println(input)
 			fmt.Println("You win!!!")
 			return // Break the game loop from game itself and end there.
 		} else {
@@ -167,9 +167,9 @@ func printResult(encodedInput, input []rune) {
 
 		// Paint values based on the encoding.
 		if encodedInput[i] == '0' {
-			green.Print(string(input[i]))
+			greenBackground.Print(string(input[i]))
 		} else if encodedInput[i] == '1' {
-			yellow.Print(string(input[i]))
+			yellowBackground.Print(string(input[i]))
 		} else {
 			fmt.Print(string(input[i]))
 		}
