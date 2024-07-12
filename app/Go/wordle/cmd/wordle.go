@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"test-assignment/internal"
+	"test-assignment/wordle/internal"
 	"time"
 
 	"github.com/fatih/color"
@@ -18,8 +18,8 @@ func main() {
 	const wordGuesses = 5
 	const wordLength = 5
 
-	// Load the words f		ile content.
-	words, err := internal.ReadWordConfiguration()
+	// Load the words from file content.
+	words, err := internal.ReadWordConfiguration("./config/words.txt")
 	if err != nil {
 		fmt.Printf("Fatal error %v \n", err)
 	} else if len(words) == 0 {

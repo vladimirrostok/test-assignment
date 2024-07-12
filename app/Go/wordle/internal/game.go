@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 	domain_errors "test-assignment/domain/errors"
-	"test-assignment/domain/word"
+	word "test-assignment/domain/models/word"
 
 	"github.com/fatih/color"
 )

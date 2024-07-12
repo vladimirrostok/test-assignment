@@ -2,13 +2,18 @@ package internal
 
 import (
 	"bufio"
+	"errors"
 	"os"
 )
 
-func ReadWordConfiguration() ([]string, error) {
+func ReadWordConfiguration(path string) ([]string, error) {
 	var words []string
 
-	file, err := os.Open("./configuration/words.txt")
+	if path == "" {
+		return nil, errors.New("file route is missing")
+	}
+
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
