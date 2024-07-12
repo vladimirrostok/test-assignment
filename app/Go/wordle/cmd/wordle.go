@@ -18,6 +18,9 @@ func main() {
 	const wordGuesses = 5
 	const wordLength = 5
 
+	// Set flags to always print the line where the error came from.
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	// Load the words from file content.
 	words, err := internal.ReadWordConfiguration("./config/words.txt")
 	if err != nil {
