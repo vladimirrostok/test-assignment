@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -65,14 +66,21 @@ func main() {
 	go internal.RunGameLoop(randomWord, wordGuesses, wordLength, errChan)
 
 	// A select blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
-	// Select statement without a "default" case is a blocking operation, so we don't really need "for" loop here.
+	// Select statement without a "default" case is a blocking operation, so we don't really need extra loop around it here.
 	select {
-	case err := <-errChan: // If there is unknown error, then let it exit fast.
-		if err != nil { // When we close channel from the sender, we receive nil here.
-			log.Fatalf("Fatal error %v \n", err) // Exit the game fast, skip processing any defer-calls.
+	case err := <-errChan:
+		if err == nil {
+			// When channel is closed by sender we receive nil and return from select back to main and end the app.
+			// It is a "game end" event, so we use this instead of extra channel logic to catch this.
+			// Technically, select exists at this point so we can leave this case empty, or use return/break here.
+		} else if err == io.EOF {
+			// When we execute the game in a Docker in non-interactive CLI we will get the EOF input error.
+			log.Fatalf("Please don't run this in non-interactive CLI environment like Docker, error: %v", err)
+		} else {
+			// If there is some unexpected error, exit the game fast skipping any deferred operations, there is no recovery.
+			log.Fatalf("Fatal error %v \n", err)
 		}
 	case <-signalChan: // If there is a shutdown signal, let game exit on its own.
 		fmt.Print("Shutting down ...\n")
-		return // Exit the loop, there's nothing blocking after it so the app closes.
 	}
 }

@@ -4,15 +4,26 @@ It's a brief assessment, that's a command-line version of the web game Wordle in
 This repository contains the ["Programming Skill Assessment" definition file](wordletest_go_v1.odt) and the [Go project code itself](/app/Go/).
 
 # Running
-Go to the [/app/Go/wordle/cmd](/app/Go/wordle/cmd/) directory and    execute `go run wordle.go`  
+Go to the [/app/Go/wordle/cmd](/app/Go/wordle/cmd/) directory and execute `go run wordle.go`  
 
 To run the entire Go codebase tests go to [/app/Go/](/app/Go/) directory and execute `go test ./...`
+
+# Running in Docker Compose
+Go to the [/app/Go/](/app/Go/) and execute the `docker-compose up --build`
+
+## Build the Wordle service Dockerfile manually
+Go to the [/app/Go/](/app/Go/) and execute the `docker build -f wordle/Dockerfile . -t wordle-image`
+
+NB! `go.sum` file is located at the `/Go/` directory while the Dockerfile is located at the `/Go/wordle/` directory, so we execute `build` command from the directory with `go.sum` file directory which is a `/Go`/ directory and point to Dockerfile with `-f` flag, executing locally `.` and naming the container with `-t` flag.
 
 
 ![alt text](assets/image.png)
 
 ## Tech Stack
-1) Golang 1.22.4
+* Golang 1.22.4
+    * extra ↓   
+    * Docker
+    * Docker Compose   
 
 ## Requirements
 * The only non-standard library allowed is the github.com/fatih/color for the terminal colors.
