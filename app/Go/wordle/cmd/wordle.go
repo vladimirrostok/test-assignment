@@ -21,10 +21,7 @@ func main() {
 	// Load the words from file content.
 	words, err := internal.ReadWordConfiguration("./config/words.txt")
 	if err != nil {
-		fmt.Printf("Fatal error %v \n", err)
-	} else if len(words) == 0 {
-		fmt.Println("Please check the configuration words.txt file, it might be empty")
-		os.Exit(0)
+		log.Fatalf("Fatal error %v \n", err)
 	}
 
 	// Create a new random number generator with a custom seed (e.g., current time).

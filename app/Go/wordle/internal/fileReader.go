@@ -30,5 +30,9 @@ func ReadWordConfiguration(path string) ([]string, error) {
 		return nil, err
 	}
 
+	if len(words) == 0 {
+		return nil, errors.New("please check the configuration words.txt file, it might be empty")
+	}
+
 	return words, nil
 }
