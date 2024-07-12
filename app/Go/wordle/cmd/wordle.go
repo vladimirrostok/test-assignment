@@ -69,8 +69,7 @@ func main() {
 	select {
 	case err := <-errChan: // If there is unknown error, then let it exit fast.
 		if err != nil { // When we close channel from the sender, we receive nil here.
-			log.Printf("Fatal error %v \n", err)
-			os.Exit(0) // Exit the game fast, skip processing any defer-calls.
+			log.Fatalf("Fatal error %v \n", err) // Exit the game fast, skip processing any defer-calls.
 		}
 	case <-signalChan: // If there is a shutdown signal, let game exit on its own.
 		fmt.Print("Shutting down ...\n")
