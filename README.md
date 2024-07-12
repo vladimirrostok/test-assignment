@@ -8,20 +8,25 @@ Go to the [/app/Go/wordle/cmd](/app/Go/wordle/cmd/) directory and execute `go ru
 
 To run the entire Go codebase tests go to [/app/Go/](/app/Go/) directory and execute `go test ./...`
 
+![Game screenshot](assets/Game-Screenshot.png) 
+
 # Running in Docker Compose
 Go to the [/app/Go/](/app/Go/) and execute the `docker-compose up --build`
 
 ## Build the Wordle service Dockerfile manually
 Go to the [/app/Go/](/app/Go/) and execute the `docker build -f wordle/Dockerfile . -t wordle-image`
 
-NB! `go.sum` file is located at the `/Go/` directory while the Dockerfile is located at the `/Go/wordle/` directory, so we execute `build` command from the directory with `go.sum` file directory which is a `/Go`/ directory and point to Dockerfile with `-f` flag, executing locally `.` and naming the container with `-t` flag.
+NB! `go.sum` file is located at the `/Go/` directory while the Dockerfile is located at the `/Go/wordle/` directory, so we execute `build` command from the directory with `go.sum` file directory which is a `/Go`/ directory and point to Dockerfile with `-f` flag, executing from local (go.sum file) context `.` and naming the container with `-t` flag.
 
 
-![alt text](assets/image.png)
+## Dockerfile build 
+![Dockerfile build screenshot](assets/Dockerfile-Build.png) 
+
+## Docker Compose build 
+![Docker Compose build screenshot](assets/Docker-Compose-Build.png) 
 
 ## Tech Stack
-* Golang 1.22.4
-    * extra ↓   
+* Golang 1.22.4 standard library + github.com/fatih/color library                 
     * Docker
     * Docker Compose   
 
