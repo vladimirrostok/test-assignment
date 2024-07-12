@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"test-assignment/utils"
+	"test-assignment/internal"
 	"time"
 
 	"github.com/fatih/color"
@@ -19,7 +19,7 @@ func main() {
 	const wordLength = 5
 
 	// Load the words file content.
-	words, err := utils.ReadWordConfiguration()
+	words, err := internal.ReadWordConfiguration()
 	if err != nil {
 		fmt.Printf("Fatal error %v \n", err)
 	} else if len(words) == 0 {
@@ -62,7 +62,7 @@ func main() {
 	}()
 
 	// Run the game and listen to channels asynchronously unblocking the main thread.
-	go utils.RunGameLoop(randomWord, wordGuesses, wordLength, errChan)
+	go internal.RunGameLoop(randomWord, wordGuesses, wordLength, errChan)
 
 	// A select blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
 	// Select statement without a "default" case is a blocking operation, so we don't really need "for" loop here.
