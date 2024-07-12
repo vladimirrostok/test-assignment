@@ -18,7 +18,7 @@ func main() {
 	const wordGuesses = 5
 	const wordLength = 5
 
-	// Load the words file content.
+	// Load the words f		ile content.
 	words, err := internal.ReadWordConfiguration()
 	if err != nil {
 		fmt.Printf("Fatal error %v \n", err)

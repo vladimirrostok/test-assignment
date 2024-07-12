@@ -4,7 +4,7 @@ It's a brief assessment, that's a command-line version of the web game Wordle in
 This repository contains the ["Programming Skill Assessment" definition file](wordletest_go_v1.odt) and the [Go project code itself](/src/).
 
 # Running
-Go to the `/src/cmd` directory and execute `go run main.go` 
+Go to the `/src/cmd/wordle` directory and execute `go run wordle.go`  
 
 To run the `/src/domain/model` tests and the `/src/utils` jump to `/src` directory an execute `go test ./...`
 
