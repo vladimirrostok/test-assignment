@@ -19,16 +19,6 @@ var yellowBackground = color.New(color.BgYellow)
 // We use this variable at two places, move outside of func to simplify the tests input.
 var wordMaxLength int
 
-// Print all the game rules.
-func PrintRules(count int) {
-	fmt.Printf("Hello, this is a mini version of the web game Wordle in Go. \n\n")
-	fmt.Printf("You have to guess the word and you have %v attempts. \n", count)
-	fmt.Printf("Any letters that are in the right position" +
-		"are highlighted in green while letters that are in the word but not in the" +
-		"correct position will get a yellow outline. \n\n")
-	fmt.Println("All words are 5 letter long, you can enter any word.")
-}
-
 func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	defer func() {
 		close(errChan) // As we know any processing has been finished, we can safely close chan from the sender.
@@ -37,7 +27,7 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 	wordMaxLength = maxLength
 
 	// Print all the game rules.
-	PrintRules(count)
+	printRules(count)
 
 	// Initialize Reader once and re-use it in the loop.
 	reader := bufio.NewReader(os.Stdin)
@@ -85,6 +75,16 @@ func RunGameLoop(secretWord string, count, maxLength int, errChan chan error) {
 
 	// End of the loop, if there are no attempts then show "Game end".
 	fmt.Println("\nGame over!")
+}
+
+// Print all the game rules.
+func printRules(count int) {
+	fmt.Printf("Hello, this is a mini version of the web game Wordle in Go. \n\n")
+	fmt.Printf("You have to guess the word and you have %v attempts. \n", count)
+	fmt.Printf("Any letters that are in the right position" +
+		"are highlighted in green while letters that are in the word but not in the" +
+		"correct position will get a yellow outline. \n\n")
+	fmt.Println("All words are 5 letter long, you can enter any word.")
 }
 
 // Game "guess the word" logic processor.
